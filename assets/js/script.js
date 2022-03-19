@@ -9,10 +9,11 @@ var createTask = function(taskText, taskDate, taskList) {
   var taskP = $("<p>")
     .addClass("m-1")
     .text(taskText);
+    
 
   // append span and p element to parent li
   taskLi.append(taskSpan, taskP);
-
+  auditTask(taskLi);
 
   // append to ul list on the page
   $("#list-" + taskList).append(taskLi);
@@ -45,41 +46,22 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
-$(".list-group").on("click", "p", function() {
-  var text = $(this).text().trim();
-  var textInput = $("<textarea>").addClass("form-control").val(text);
-  $(this).replaceWith(textInput)
-  textInput.trigger("focus");
-});
+var auditTask = function(taskEl) {
+  var date = $(taskEl).find("span").text().trim();
+  console.log(date);
 
+  var time = moment(date, "L").set("hour", 17);
+  console.log(time);
 
-
-$(".list-group").on("blur", "textarea", function () {
-  //current value/text
-  var text = $(this).val().trim();
-
-  //parent ul's id attribute
-  var status = $(this)
-  .closest(".list-group")
-  .attr("id")
-  .replace("list-", "")
-
-  // get the task's position in the list of other li attributes
-  var index = $(this)
-    .closest(".list-group-item")
-    .index();
-
-  tasks[status][index].text = text;
-  saveTasks();
-
-  // recreate p element
-  var taskP = $("<p>")
-    .addClass("m-1")
-    .text(text)
-
-  // replace textarea with p element
-  $(this).replaceWith(taskP);
-});
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger")
+  
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger")
+  }
+  else if (Math.abs(moment().diff(time, "days")) <=2) {
+    $(taskEl).addClass("list-group-item-warning")
+  }
+};
 
 
 // modal was triggered
@@ -116,6 +98,41 @@ $("#task-form-modal .btn-primary").click(function() {
   }
 });
 
+$(".list-group").on("click", "p", function() {
+  var text = $(this).text().trim();
+  var textInput = $("<textarea>").addClass("form-control").val(text);
+  $(this).replaceWith(textInput)
+  textInput.trigger("focus");
+});
+
+
+
+$(".list-group").on("blur", "textarea", function () {
+  //current value/text
+  var text = $(this).val();
+
+  //parent ul's id attribute
+  var status = $(this)
+  .closest(".list-group")
+  .attr("id")
+  .replace("list-", "")
+
+  // get the task's position in the list of other li attributes
+  var index = $(this)
+    .closest(".list-group-item")
+    .index();
+
+  tasks[status][index].text = text;
+  saveTasks();
+
+  // recreate p element
+  var taskP = $("<p>")
+    .addClass("m-1")
+    .text(text)
+
+  // replace textarea with p element
+  $(this).replaceWith(taskP);
+});
 
 
 $(".list-group").on("click","span",function() {
@@ -127,15 +144,22 @@ $(".list-group").on("click","span",function() {
   .attr("type","test")
   .addClass("form-control")
   .val(date);
-
+  
   $(this).replaceWith(dateInput);
+
+  dateInput.datepicker({
+    minDate: 1,
+    onClose: function() {
+      $(this).trigger("change");
+    }
+  });
+
   dateInput.trigger("focus");
 });
 
-$(".list_group").on("blur", "input[type='text']", function() {
+$(".list-group").on("change", "input[type='text']", function() {
   var date = $(this)
-  .val()
-  .trim();
+  .val();
 
   var status = $(this)
   .closest(".list-group")
@@ -143,7 +167,7 @@ $(".list_group").on("blur", "input[type='text']", function() {
   .replace("list-", "")
 
   var index = $(this)
-  .closest("list-group-item")
+  .closest(".list-group-item")
   .index();
 
   tasks[status][index].date = date;
@@ -152,9 +176,8 @@ $(".list_group").on("blur", "input[type='text']", function() {
   var taskSpan = $("<span>")
   .addClass("badge badge-primary badge-pill")
   .text(date);
-
   $(this).replaceWith(taskSpan);
-
+  auditTask($(taskSpan).closes(".list-group-item"))
 });
 
 // remove all tasks
@@ -226,4 +249,9 @@ $('#trash').droppable({
   out: function(event, ui) {
     console.log("out");
   }
+});
+
+
+$("#modalDueDate").datepicker({
+  minDate: 1
 });
