@@ -101,7 +101,7 @@ $("#task-form-modal .btn-primary").click(function() {
 $(".list-group").on("click", "p", function() {
   var text = $(this).text().trim();
   var textInput = $("<textarea>").addClass("form-control").val(text);
-  $(this).replaceWith(textInput)
+  $(this).replaceWith(textInput);
   textInput.trigger("focus");
 });
 
@@ -141,7 +141,7 @@ $(".list-group").on("click","span",function() {
   .trim();
 
   var dateInput = $("<input>")
-  .attr("type","test")
+  .attr("type","text")
   .addClass("form-control")
   .val(date);
   
@@ -177,7 +177,7 @@ $(".list-group").on("change", "input[type='text']", function() {
   .addClass("badge badge-primary badge-pill")
   .text(date);
   $(this).replaceWith(taskSpan);
-  auditTask($(taskSpan).closes(".list-group-item"))
+  auditTask($(taskSpan).closes(".list-group-item"));
 });
 
 // remove all tasks
